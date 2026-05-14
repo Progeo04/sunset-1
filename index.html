@@ -1,49 +1,65 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>Viewer IFC</title>
   <style>
-    body {
-      margin: 0;
-      overflow: hidden;
-    }
-
+    body { margin:0; overflow:hidden; }
     #viewer-container {
-      width: 100vw;
-      height: 100vh;
+      width:100vw;
+      height:100vh;
     }
   </style>
 </head>
 <body>
-  <div id="viewer-container"></div>
+<div id="viewer-container"></div>
 
-  <script type="module">
-    import * as OBC from "https://cdn.jsdelivr.net/npm/@thatopen/components/+esm";
-    import * as WEBIFC from "https://cdn.jsdelivr.net/npm/web-ifc/+esm";
+<script type="module">
+import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160/build/three.module.js";
+import * as OBC from "https://cdn.jsdelivr.net/npm/@thatopen/components/+esm";
 
-    const container = document.getElementById("viewer-container");
+const container = document.getElementById("viewer-container");
 
-    const components = new OBC.Components();
-    const worlds = components.get(OBC.Worlds);
+const components = new OBC.Components();
+const worlds = components.get(OBC.Worlds);
 
-    const world = worlds.create();
-    world.scene = new OBC.SimpleScene(components);
-    world.renderer = new OBC.SimpleRenderer(components, container);
-    world.camera = new OBC.SimpleCamera(components);
+const world = worlds.create();
 
-    components.init();
+world.scene = new OBC.SimpleScene(components);
+world.renderer = new OBC.SimpleRenderer(components, container);
+world.camera = new OBC.SimpleCamera(components);
 
-    world.scene.setup();
+components.init();
 
-    const ifcLoader = components.get(OBC.IfcLoader);
-    await ifcLoader.setup();
+world.scene.setup();
 
-    const model = await ifcLoader.load(
-      await fetch("teste.ifc").then(r => r.arrayBuffer())
-    );
+const ifcLoader = components.get(OBC.IfcLoader);
+await ifcLoader.setup();
 
-    world.scene.three.add(model);
-  </script>
+const file = await fetch("modelo.ifc");
+const buffer = await file.arrayBuffer();
+
+const model = await ifcLoader.load(buffer);
+
+world.scene.three.add(model);
+
+// centralizar modelo
+const box = new THREE.Box3().setFromObject(model);
+const center = box.getCenter(new THREE.Vector3());
+
+model.position.x -= center.x;
+model.position.y -= center.y;
+model.position.z -= center.z;
+
+world.camera.controls.setLookAt(
+  100,
+  100,
+  100,
+  0,
+  0,
+  0
+);
+</script>
+
+</body>
+</html>
 </body>
 </html>
