@@ -40,7 +40,7 @@
     await ifcLoader.setup();
 
     const model = await ifcLoader.load(
-      await fetch("modelo.ifc").then(r => r.arrayBuffer())
+      await fetch("teste.ifc").then(r => r.arrayBuffer())
     );
 
     world.scene.three.add(model);
