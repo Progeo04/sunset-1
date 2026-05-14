@@ -1,26 +1,49 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+  <meta charset="UTF-8">
+  <title>Viewer IFC</title>
   <style>
     body {
       margin: 0;
+      overflow: hidden;
     }
 
-    model-viewer {
+    #viewer-container {
       width: 100vw;
       height: 100vh;
     }
   </style>
 </head>
 <body>
+  <div id="viewer-container"></div>
 
-<model-viewer 
-  src="modelo.glb"
-  camera-controls
-  auto-rotate
-  shadow-intensity="1">
-</model-viewer>
+  <script type="module">
+    import * as OBC from "https://cdn.jsdelivr.net/npm/@thatopen/components/+esm";
+    import * as WEBIFC from "https://cdn.jsdelivr.net/npm/web-ifc/+esm";
 
+    const container = document.getElementById("viewer-container");
+
+    const components = new OBC.Components();
+    const worlds = components.get(OBC.Worlds);
+
+    const world = worlds.create();
+    world.scene = new OBC.SimpleScene(components);
+    world.renderer = new OBC.SimpleRenderer(components, container);
+    world.camera = new OBC.SimpleCamera(components);
+
+    components.init();
+
+    world.scene.setup();
+
+    const ifcLoader = components.get(OBC.IfcLoader);
+    await ifcLoader.setup();
+
+    const model = await ifcLoader.load(
+      await fetch("modelo.ifc").then(r => r.arrayBuffer())
+    );
+
+    world.scene.three.add(model);
+  </script>
 </body>
 </html>
