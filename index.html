@@ -2,13 +2,18 @@
 <html>
 <head>
   <style>
-    body { margin:0; overflow:hidden; }
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+
     #viewer-container {
-      width:100vw;
-      height:100vh;
+      width: 100vw;
+      height: 100vh;
     }
   </style>
 </head>
+
 <body>
 <div id="viewer-container"></div>
 
@@ -28,7 +33,6 @@ world.renderer = new OBC.SimpleRenderer(components, container);
 world.camera = new OBC.SimpleCamera(components);
 
 components.init();
-
 world.scene.setup();
 
 const ifcLoader = components.get(OBC.IfcLoader);
@@ -41,25 +45,15 @@ const model = await ifcLoader.load(buffer);
 
 world.scene.three.add(model);
 
-// centralizar modelo
+// centralizar
 const box = new THREE.Box3().setFromObject(model);
 const center = box.getCenter(new THREE.Vector3());
 
-model.position.x -= center.x;
-model.position.y -= center.y;
-model.position.z -= center.z;
+model.position.sub(center);
 
-world.camera.controls.setLookAt(
-  100,
-  100,
-  100,
-  0,
-  0,
-  0
-);
+// zoom automático
+world.camera.controls.fitToSphere(model, true);
+
 </script>
-
-</body>
-</html>
 </body>
 </html>
