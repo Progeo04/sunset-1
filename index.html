@@ -1,25 +1,31 @@
 <!doctype html>
-<html>
+<html lang="pt-BR">
 <head>
-<script type="module"
-src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Visualizador 3D</title>
+  
+  <!-- Importação com versão fixada (v4.0.0) para maior estabilidade -->
+  <script type="module" src="https://unpkg.com"></script>
 
-<style>
-body{
-  margin:0;
-}
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden; /* Evita barras de rolagem fantasmas em telas cheias */
+    }
 
-model-viewer{
-  width:100vw;
-  height:100vh;
-  background-color:#fffcfc;
-}
-</style>
+    model-viewer {
+      width: 100vw;
+      height: 100vh;
+      background-color: #fffcfc;
+    }
+  </style>
 </head>
-
 <body>
 
 <model-viewer
+  id="visualizador"
   src="modelo.glb"
   camera-controls
   shadow-intensity="1"
@@ -28,23 +34,30 @@ model-viewer{
 </model-viewer>
 
 <script>
-document.querySelector("model-viewer").addEventListener("load", async () => {
-  const viewer = document.querySelector("model-viewer");
+  // Captura o elemento usando ID para evitar conflitos se você adicionar outros elementos depois
+  const viewer = document.querySelector("#visualizador");
 
-  viewer.model.materials.forEach((material) => {
-    
-    // cor cinza escuro
-    material.pbrMetallicRoughness.setBaseColorFactor([
-      1.0, 0.0, 0.0, 1.0
-    ]);
+  viewer.addEventListener("load", function() {
+    // Acessa a lista de materiais de forma segura
+    const materiais = this.model?.materials;
 
-    // remove brilho excessivo
-    material.pbrMetallicRoughness.setMetallicFactor(0);
+    if (!materiais) return;
 
-    // deixa mais fosco
-    material.pbrMetallicRoughness.setRoughnessFactor(1);
+    materiais.forEach((material) => {
+      // Verificação de segurança: garante que o bloco PBR existe no material do GLB
+      if (material.pbrMetallicRoughness) {
+        
+        // Aplica a cor cinza escuro de forma sólida (Alpha = 1)
+        material.pbrMetallicRoughness.setBaseColorFactor([0.2, 0.2, 0.2, 1]);
+
+        // Remove o aspecto espelhado/metálico
+        material.pbrMetallicRoughness.setMetallicFactor(0);
+
+        // Define a rugosidade máxima (totalmente fosco/sem brilho de verniz)
+        material.pbrMetallicRoughness.setRoughnessFactor(1);
+      }
+    });
   });
-});
 </script>
 
 </body>
