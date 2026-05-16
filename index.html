@@ -6,13 +6,13 @@ src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
 
 <style>
 body{
-margin:0;
+  margin:0;
 }
 
 model-viewer{
-width:100vw;
-height:100vh;
-background:#fffcfc;
+  width:100vw;
+  height:100vh;
+  background:#fffcfc;
 }
 </style>
 </head>
@@ -20,11 +20,11 @@ background:#fffcfc;
 <body>
 
 <model-viewer
-src="modelo.glb"
-camera-controls
-shadow-intensity="1.5"
-environment-image="neutral"
-exposure="1">
+  src="modelo.glb"
+  camera-controls
+  shadow-intensity="1"
+  environment-image="neutral"
+  exposure="1">
 </model-viewer>
 
 <script>
@@ -32,15 +32,20 @@ document.querySelector("model-viewer").addEventListener("load", async () => {
   const viewer = document.querySelector("model-viewer");
 
   viewer.model.materials.forEach((material) => {
+    
+    // cor cinza escuro
     material.pbrMetallicRoughness.setBaseColorFactor([
-      0.65,0.55,0.35,1
+      0.2, 0.2, 0.2, 1
     ]);
+
+    // remove brilho excessivo
+    material.pbrMetallicRoughness.setMetallicFactor(0);
+
+    // deixa mais fosco
+    material.pbrMetallicRoughness.setRoughnessFactor(1);
   });
 });
 </script>
-
-</body>
-</html>
 
 </body>
 </html>
