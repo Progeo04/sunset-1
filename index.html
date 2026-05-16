@@ -1,51 +1,62 @@
 <!doctype html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-  <meta charset="utf-8">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Visualizador 3D</title>
-  <script type="module" src="https://googleapis.com"></script>
+  
+  <!-- Importação com versão fixada (v4.0.0) para maior estabilidade -->
+  <script type="module" src="https://unpkg.com"></script>
 
   <style>
-    body { margin: 0; }
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden; /* Evita barras de rolagem fantasmas em telas cheias */
+    }
+
     model-viewer {
       width: 100vw;
       height: 100vh;
-      background-color: #fffcfc; /* Fundo quase branco */
+      background-color: #fffcfc;
     }
   </style>
 </head>
-
 <body>
 
-<model-viewer 
-  id="viewer"
-  src="modelo.glb" 
-  alt="Um modelo 3D configurado dinamicamente"
-  camera-controls 
-  shadow-intensity="1" 
-  environment-image="neutral" 
+<model-viewer
+  id="visualizador"
+  src="modelo.glb"
+  camera-controls
+  shadow-intensity="1"
+  environment-image="neutral"
   exposure="1">
 </model-viewer>
 
 <script>
-  const viewer = document.querySelector("#viewer");
+  // Captura o elemento usando ID para evitar conflitos se você adicionar outros elementos depois
+  const viewer = document.querySelector("#visualizador");
 
-  viewer.addEventListener("load", () => {
-    const materials = viewer.model.materials;
+  viewer.addEventListener("load", function() {
+    // Acessa a lista de materiais de forma segura
+    const materiais = this.model?.materials;
 
-    materials.forEach((material) => {
-      // Cria uma referência curta para o PBR
-      const pbr = material.pbrMetallicRoughness;
+    if (!materiais) return;
 
-      // Cor: Cinza Escuro (0.2 ≈ 51 em escala 0-255)
-      pbr.setBaseColorFactor([0.2, 0.2, 0.2, 1]);
+    materiais.forEach((material) => {
+      // Verificação de segurança: garante que o bloco PBR existe no material do GLB
+      if (material.pbrMetallicRoughness) {
+        
+        // Aplica a cor cinza escuro de forma sólida (Alpha = 1)
+        material.pbrMetallicRoughness.setBaseColorFactor([0.2, 0.2, 0.2, 1]);
 
-      // Acabamento: Totalmente Fosco (Dielectric)
-      pbr.setMetallicFactor(0);   // 0 = plástico/borracha, 1 = metal
-      pbr.setRoughnessFactor(1);  // 1 = rugoso/difuso, 0 = espelhado
+        // Remove o aspecto espelhado/metálico
+        material.pbrMetallicRoughness.setMetallicFactor(0);
+
+        // Define a rugosidade máxima (totalmente fosco/sem brilho de verniz)
+        material.pbrMetallicRoughness.setRoughnessFactor(1);
+      }
     });
-    
-    console.log("Materiais atualizados com sucesso.");
   });
 </script>
 
