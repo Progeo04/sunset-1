@@ -1,59 +1,66 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <style>
-    body {
-      margin: 0;
-      overflow: hidden;
-    }
-
-    #viewer-container {
-      width: 100vw;
-      height: 100vh;
-    }
-  </style>
+<style>
+body { margin:0; overflow:hidden; }
+canvas { display:block; }
+</style>
 </head>
-
 <body>
-<div id="viewer-container"></div>
 
 <script type="module">
-import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160/build/three.module.js";
-import * as OBC from "https://cdn.jsdelivr.net/npm/@thatopen/components/+esm";
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160/build/three.module.js';
+import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.160/examples/jsm/controls/OrbitControls.js';
+import { OBJLoader } from 'https://cdn.jsdelivr.net/npm/three@0.160/examples/jsm/loaders/OBJLoader.js';
 
-const container = document.getElementById("viewer-container");
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xdddddd);
 
-const components = new OBC.Components();
-const worlds = components.get(OBC.Worlds);
+const camera = new THREE.PerspectiveCamera(
+75,
+window.innerWidth/window.innerHeight,
+0.1,
+100000
+);
 
-const world = worlds.create();
+const renderer = new THREE.WebGLRenderer({antialias:true});
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
 
-world.scene = new OBC.SimpleScene(components);
-world.renderer = new OBC.SimpleRenderer(components, container);
-world.camera = new OBC.SimpleCamera(components);
+const controls = new OrbitControls(camera, renderer.domElement);
 
-components.init();
-world.scene.setup();
+const light = new THREE.DirectionalLight(0xffffff, 2);
+light.position.set(100,100,100);
+scene.add(light);
 
-const ifcLoader = components.get(OBC.IfcLoader);
-await ifcLoader.setup();
+scene.add(new THREE.AmbientLight(0xffffff,1));
 
-const file = await fetch("modelo.ifc");
-const buffer = await file.arrayBuffer();
+const loader = new OBJLoader();
 
-const model = await ifcLoader.load(buffer);
+loader.load('modelo.obj', function(object){
 
-world.scene.three.add(model);
+    scene.add(object);
 
-// centralizar
-const box = new THREE.Box3().setFromObject(model);
-const center = box.getCenter(new THREE.Vector3());
+    const box = new THREE.Box3().setFromObject(object);
+    const center = box.getCenter(new THREE.Vector3());
 
-model.position.sub(center);
+    object.position.sub(center);
 
-// zoom automático
-world.camera.controls.fitToSphere(model, true);
+    const size = box.getSize(new THREE.Vector3()).length();
 
+    camera.position.set(size,size,size);
+    controls.target.set(0,0,0);
+    controls.update();
+});
+
+function animate(){
+ requestAnimationFrame(animate);
+ controls.update();
+ renderer.render(scene,camera);
+}
+
+animate();
 </script>
+
 </body>
 </html>
