@@ -45,6 +45,7 @@ viewer.addEventListener("load", () => {
   if (!materiais) return;
 
   materiais.forEach((material) => {
+    console.log("modelo carregado");
     const pbr = material.pbrMetallicRoughness;
 
     if (!pbr) return;
