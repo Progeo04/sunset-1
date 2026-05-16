@@ -12,7 +12,7 @@ margin:0;
 model-viewer{
 width:100vw;
 height:100vh;
-background:#202020;
+background:#1f1f1f;
 }
 </style>
 </head>
@@ -22,20 +22,20 @@ background:#202020;
 <model-viewer
 src="modelo.glb"
 camera-controls
-shadow-intensity="2"
+shadow-intensity="1.5"
 environment-image="neutral"
-exposure="0.8">
+exposure="1">
 </model-viewer>
 
 <script>
 document.querySelector("model-viewer").addEventListener("load", async () => {
   const viewer = document.querySelector("model-viewer");
 
-  const material = viewer.model.materials[0];
-
-  material.pbrMetallicRoughness.setBaseColorFactor([
-    0.55,0.35,0.15,1
-  ]);
+  viewer.model.materials.forEach((material) => {
+    material.pbrMetallicRoughness.setBaseColorFactor([
+      0.65,0.55,0.35,1
+    ]);
+  });
 });
 </script>
 
